@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sun May 26 18:50:34 2024
-
-@author: jvilp
-"""
-
 import pandas as pd
 from datetime import date
 from enum_class import Transaction_cost, Rebalancing_frequency
