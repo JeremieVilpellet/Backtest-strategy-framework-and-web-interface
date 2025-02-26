@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Jun 13 22:34:19 2024
-
-@author: jvilp
-"""
-
 import dash
 from dash import html, dcc, callback, Input, Output, State, dash_table
 import plotly.express as px
