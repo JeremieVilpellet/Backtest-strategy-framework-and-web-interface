@@ -1,0 +1,296 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Jun 13 23:06:15 2024
+
+@author: jvilp
+"""
+
+import dash
+from dash import html, dcc, callback, Input, Output, State
+import dash_mantine_components as dmc
+import plotly.express as px
+import numpy as np
+import pandas as pd
+from datetime import date
+
+
+def get_modal_momentum():
+    
+    start_date_field = html.Div([
+        html.Span("Start Date", style={'flex': '1'}),
+        html.Div(
+            dcc.DatePickerSingle(
+                id="field_modal_start_date",
+                min_date_allowed=date(1981, 1, 1),
+                max_date_allowed=date(2018, 1, 1),
+                initial_visible_month=date(1981, 1, 1),
+                date=date(1981, 1, 1),
+                style={'width': '130px', 'height': '45px', 'margin-right': '150px'}
+            ),
+            style={'flex': '1', 'display': 'flex', 'justify-content': 'center'}
+        )
+    ], style={'display': "flex", 'align-items': 'center', 'margin-bottom': '30px'})
+
+    end_date_field = html.Div([
+        html.Span("End Date", style={'flex': '1'}),
+        html.Div(
+            dcc.DatePickerSingle(
+                id="field_modal_end_date",
+                min_date_allowed=date(1981, 1, 1),
+                max_date_allowed=date(2018, 1, 1),
+                initial_visible_month=date(2018, 1, 1),
+                date=date(2018, 1, 1),
+                style={'width': '130px', 'height': '45px', 'margin-right': '150px'}
+            ),
+            style={'flex': '1', 'display': 'flex', 'justify-content': 'center'}
+        )
+    ], style={'display': "flex", 'align-items': 'center', 'margin-bottom': '30px'})
+
+    dropdown_strat = html.Div([
+        html.Span("Strategy", style={'flex': '1'}),
+        html.Div(
+            dcc.Dropdown(
+                id="field_modal_strategy",
+                multi=False,
+                options=["Momentum", "Reversal", "Co Mom Rev"],
+                value="Momentum",
+                optionHeight=80,
+                style={"width": "130px", "height": "45px", 'margin-right': '150px'}
+            ),
+            style={'flex': '1', 'display': 'flex', 'justify-content': 'center'}
+        )
+    ], style={'display': "flex", 'align-items': 'center', 'margin-bottom': '30px'})
+
+    dropdown_rebalancing = html.Div([
+        html.Span("Rebalancing", style={'flex': '1'}),
+        html.Div(
+            dcc.Dropdown(
+                id="field_modal_rebalancing",
+                multi=False,
+                options=["Monthly", "Quarterly", "Yearly"],
+                value="Monthly",
+                optionHeight=80,
+                style={"width": "130px", "height": "45px", 'margin-right': '150px'}
+            ),
+            style={'flex': '1', 'display': 'flex', 'justify-content': 'center'}
+        )
+    ], style={'display': "flex", 'align-items': 'center', 'margin-bottom': '30px'})
+
+
+    dropdown_horizon_mom = html.Div([
+        html.Span("Horizon MOM", style={'flex': '1'}),
+        html.Div(
+            dcc.Dropdown(
+                id="field_modal_horizon_mom",
+                multi=False,
+                options=[i for i in range(1,20)],
+                value=1,
+                optionHeight=80,
+                style={"width": "130px", "height": "45px", 'margin-right': '150px'}
+            ),
+            style={'flex': '1', 'display': 'flex', 'justify-content': 'center'}
+        )
+    ], style={'display': "flex", 'align-items': 'center', 'margin-bottom': '30px'})
+
+    dropdown_horizon_rev = html.Div([
+        html.Span("Horizon REV", style={'flex': '1'}),
+        html.Div(
+            dcc.Dropdown(
+                id="field_modal_horizon_rev",
+                multi=False,
+                options=[i for i in range(1,20)],
+                value=1,
+                optionHeight=80,
+                style={"width": "130px", "height": "45px", 'margin-right': '150px'}
+            ),
+            style={'flex': '1', 'display': 'flex', 'justify-content': 'center'}
+        )
+    ], style={'display': "flex", 'align-items': 'center', 'margin-bottom': '30px'})
+
+
+    dropdown_top_rev = html.Div([
+        html.Span("Top REV", style={'flex': '1'}),
+        html.Div(
+            dcc.Dropdown(
+                id="field_modal_top_rev",
+                multi=False,
+                options=[i/100 for i in range(1,100)],
+                value=0.2,
+                optionHeight=80,
+                style={"width": "130px", "height": "45px", 'margin-right': '150px'}
+            ),
+            style={'flex': '1', 'display': 'flex', 'justify-content': 'center'}
+        )
+    ], style={'display': "flex", 'align-items': 'center', 'margin-bottom': '30px'})
+
+    dropdown_down_rev = html.Div([
+        html.Span("Down REV", style={'flex': '1'}),
+        html.Div(
+            dcc.Dropdown(
+                id="field_modal_down_rev",
+                multi=False,
+                options=[i/100 for i in range(1,100)],
+                value=0.2,
+                optionHeight=80,
+                style={"width": "130px", "height": "45px", 'margin-right': '150px'}
+            ),
+            style={'flex': '1', 'display': 'flex', 'justify-content': 'center'}
+        )
+    ], style={'display': "flex", 'align-items': 'center', 'margin-bottom': '30px'})
+
+    dropdown_top_mom = html.Div([
+        html.Span("Top MOM", style={'flex': '1'}),
+        html.Div(
+            dcc.Dropdown(
+                id="field_modal_top_mom",
+                multi=False,
+                options=[i/100 for i in range(1,100)],
+                value=0.2,
+                optionHeight=80,
+                style={"width": "130px", "height": "45px", 'margin-right': '150px'}
+            ),
+            style={'flex': '1', 'display': 'flex', 'justify-content': 'center'}
+        )
+    ], style={'display': "flex", 'align-items': 'center', 'margin-bottom': '30px'})
+
+    dropdown_down_mom = html.Div([
+        html.Span("Down MOM", style={'flex': '1'}),
+        html.Div(
+            dcc.Dropdown(
+                id="field_modal_down_mom",
+                multi=False,
+                options=[i/100 for i in range(1,100)],
+                value=0.2,
+                optionHeight=80,
+                style={"width": "130px", "height": "45px", 'margin-right': '150px'}
+            ),
+            style={'flex': '1', 'display': 'flex', 'justify-content': 'center'}
+        )
+    ], style={'display': "flex", 'align-items': 'center', 'margin-bottom': '30px'})
+
+
+    dropdown_top_volume = html.Div([
+        html.Span("Top Volume", style={'flex': '1'}),
+        html.Div(
+            dcc.Dropdown(
+                id="field_modal_top_volume",
+                multi=False,
+                options=[i/100 for i in range(1,100)],
+                value=0.5,
+                optionHeight=80,
+                style={"width": "130px", "height": "45px", 'margin-right': '150px'}
+            ),
+            style={'flex': '1', 'display': 'flex', 'justify-content': 'center'}
+        )
+    ], style={'display': "flex", 'align-items': 'center', 'margin-bottom': '30px'})
+
+    dropdown_down_volum = html.Div([
+        html.Span("Down Volume", style={'flex': '1'}),
+        html.Div(
+            dcc.Dropdown(
+                id="field_modal_down_volume",
+                multi=False,
+                options=[i/100 for i in range(1,100)],
+                value=0.5,
+                optionHeight=80,
+                style={"width": "130px", "height": "45px", 'margin-right': '150px'}
+            ),
+            style={'flex': '1', 'display': 'flex', 'justify-content': 'center'}
+        )
+    ], style={'display': "flex", 'align-items': 'center', 'margin-bottom': '30px'})
+    
+    dropdown_constant_cost = html.Div([
+        html.Span("Constant cost", style={'flex': '1'}),
+        html.Div(
+            dcc.Dropdown(
+                id="field_modal_constant_cost",
+                multi=False,
+                options=[0]+[i/100 for i in range(1,100)],
+                value=0,
+                optionHeight=80,
+                style={"width": "130px", "height": "45px", 'margin-right': '150px'}
+            ),
+            style={'flex': '1', 'display': 'flex', 'justify-content': 'center'}
+        )
+    ], style={'display': "flex", 'align-items': 'center', 'margin-bottom': '30px'})
+    
+    dropdown_linear_cost = html.Div([
+        html.Span("Linear cost", style={'flex': '1'}),
+        html.Div(
+            dcc.Dropdown(
+                id="field_modal_linear_cost",
+                multi=False,
+                options=[0]+[i/100 for i in range(1,100)],
+                value=0,
+                optionHeight=80,
+                style={"width": "130px", "height": "45px", 'margin-right': '150px'}
+            ),
+            style={'flex': '1', 'display': 'flex', 'justify-content': 'center'}
+        )
+    ], style={'display': "flex", 'align-items': 'center', 'margin-bottom': '30px'})
+    
+    dropdown_benchmark = html.Div([
+        html.Span("Display Benchmark", style={'flex': '1'}),
+        html.Div(
+            dcc.Dropdown(
+                id="field_modal_benchmark",
+                multi=False,
+                options=["True", "False"],
+                value="False",
+                optionHeight=80,
+                style={"width": "130px", "height": "45px", 'margin-right': '150px'}
+            ),
+            style={'flex': '1', 'display': 'flex', 'justify-content': 'center'}
+        )
+    ], style={'display': "flex", 'align-items': 'center', 'margin-bottom': '30px'})
+    
+    dropdown_choice_data = html.Div([
+        html.Span("Benchmark", style={'flex': '1'}),
+        html.Div(
+            dcc.Dropdown(
+                id="field_modal_choice_data",
+                multi=False,
+                options=["Nasdaq", "SPX", "Russel1000", "Russel2000", "Russel3000"],
+                value="Nasdaq",
+                optionHeight=80,
+                style={"width": "130px", "height": "45px", 'margin-right': '150px'}
+            ),
+            style={'flex': '1', 'display': 'flex', 'justify-content': 'center'}
+        )
+    ], style={'display': "flex", 'align-items': 'center', 'margin-bottom': '30px'})
+
+
+
+    lst_field_modal = [
+        start_date_field,
+        end_date_field,       
+        dropdown_strat,
+        dropdown_rebalancing,
+        dropdown_choice_data,
+        
+        dropdown_horizon_mom,
+        dropdown_top_mom,
+        dropdown_down_mom,
+                
+        dropdown_horizon_rev,
+        dropdown_top_rev,
+        dropdown_down_rev,
+               
+        dropdown_top_volume,
+        dropdown_down_volum,
+        dropdown_linear_cost,
+        dropdown_constant_cost, 
+        
+        dropdown_benchmark,
+        ]
+
+
+    modal_momentum = dmc.Modal(
+                            title="Strategy Parameter",
+                            id="modal_component",
+                            zIndex=10000,
+                            centered=True,
+                            opened=True,
+                            children=lst_field_modal)
+    
+    return lst_field_modal
