@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sun May 26 19:34:56 2024
-
-@author: jvilp
-"""
-
 import pandas as pd
 import numpy as np
 from enum_class import Strategy
