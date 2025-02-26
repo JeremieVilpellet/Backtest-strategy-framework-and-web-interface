@@ -1,11 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sun Jun  9 16:23:11 2024
-
-@author: jvilp
-"""
-
-## Import
 import pandas as pd
 from datetime import date
 
